@@ -3,14 +3,34 @@ package com.dmoracco;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.lang.Object;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        int[] randomList = generateList(100000);
+        validate();
+    }
 
+    public static void validate() {
 
+        int[] testListKnown = {2, -3, 7, -9, 11, -22, 29, -33, 45, -5};
+        ArrayList<int[]> testFoundSums = ThreeSumBruteForce(testListKnown, 10);
+
+        System.out.print("Testing known/small list for BruteForce: ");
+        for (int[] list: testFoundSums
+             ) {
+            printTriple(list);
+        }
+        System.out.println();
+
+    }
+
+    public static void printTriple(int[] list){
+        for (int i = 0; i < list.length; i++){
+            System.out.print(list[i] + ", ");
+        }
+        System.out.println();
     }
 
     public static int[] generateList(int n){
@@ -35,19 +55,16 @@ public class Main {
        return list;
 
     }
-    public static List ThreeSumBruteForce(int[] list, int n){
-        List sumList = new ArrayList();
+
+    public static ArrayList ThreeSumBruteForce(int[] list, int n){
+        ArrayList sumList = new ArrayList();
 
         // Iterate through list N^3 times to find sums
         for (int i = 0; i < n-2; i++){
             for (int j = i +1; j < n-1; j++){
                 for (int k = j+1; k < n; k++){
                     if ((list[i]+list[j]+list[k] == 0)){
-                       int[] threesum = new int[3];
-                       threesum[0] = list[i];
-                       threesum[1] = list[j];
-                       threesum[2] = list[k];
-                       sumList.add(threesum);
+                       sumList.add(new int[] {list[i], list[j], list[k] });
                     }
                 }
             }
