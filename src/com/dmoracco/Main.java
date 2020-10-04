@@ -1,15 +1,47 @@
 package com.dmoracco;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.lang.Object;
+
+import static com.dmoracco.GetCpuTime.getCpuTime;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        validate();
+        // Validate algorithms
+        //validate();
+
+        // Testing
+        long startTime = 0;
+        long endTime = 0;
+        long lastTime = 0;
+        long currentTime = 0;
+        String ratio = "na";
+
+        long maxTime = 10000000;
+        int n = 1000000;
+
+        System.out.printf("\n\n%20s%20s%20s%20s\n", "N", "Time (m/s)", "Ratio", "Exp. Ratio");
+
+        for (int i = 1; i < n; i=i*2){
+            if (lastTime >= maxTime) break;
+            int[] randomList = generateList(i);
+
+            startTime = getCpuTime();
+            ArrayList<int[]> foundSums = ThreeSumBruteForce(randomList, i);
+            endTime = getCpuTime();
+            currentTime = (endTime-startTime)/1000;
+
+            if (lastTime != 0){
+                ratio = String.format("%5.4f", (double) currentTime/lastTime);
+            }
+
+
+            System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
+            lastTime = currentTime;
+
+        }
     }
 
     public static void validate() {
@@ -23,6 +55,16 @@ public class Main {
             printTriple(list);
         }
         System.out.println();
+
+        System.out.println("Testing n = 5000 random list");
+        int[] testRandomList = generateList(5000);
+        ArrayList<int[]> foundSums = ThreeSumBruteForce(testRandomList, 5000);
+        System.out.println("Found: " + foundSums.size());
+        if (foundSums.size() > 0){
+            for (int[] list: foundSums){
+                printTriple(list);
+            }
+        }
 
     }
 
