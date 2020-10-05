@@ -22,14 +22,14 @@ public class Main {
         long currentTime = 0;
         String ratio = "na";
 
-        long maxTime = 10000000;
+        long maxTime = 300000;
         int n = 1000000;
 
 
         System.out.printf("\n\n%20s%20s%20s%20s\n", "N", "Time (m/s)", "Ratio", "Exp. Ratio");
 
         for (int i = 1; i < n; i=i*2){
-            if (lastBFTime >= maxTime && lastFasterTime >= maxTime) break;
+            if (lastBFTime >= maxTime && lastFasterTime >= maxTime && lastFastestTime >= maxTime) break;
 
             int[] randomList = generateList(i);
 
@@ -39,48 +39,49 @@ public class Main {
                 startTime = getCpuTime();
                 ArrayList<int[]> foundSums = ThreeSumBruteForce(randomList, i);
                 endTime = getCpuTime();
-                currentTime = (endTime - startTime) / 1000;
+                currentTime = (endTime - startTime) / 1000000;
 
                 if (lastBFTime != 0){
                     ratio = String.format("%5.4f", (double) currentTime/lastBFTime);
                 }
 
 
-                System.out.printf("%20s%20s%20s%20s", i, currentTime, ratio, "8");
+                System.out.printf("%15s%15s%15s%15s", i, currentTime, ratio, "8");
                 lastBFTime = currentTime;
-            } else System.out.printf("%20s%20s%20s%20s", "na", "na", "na", "na");
+            } else System.out.printf("%15s%15s%15s%15s", "na", "na", "na", "na");
 
+            String n2log = String.format("%5.2f", (i*i*Math.log(i))/((i/2)*(i/2)*Math.log(i/2)));
             // Faster
             if (lastFasterTime < maxTime) {
                 startTime = getCpuTime();
                 ArrayList<int[]> foundSums = ThreeSumFasterBinary(randomList, i);
                 endTime = getCpuTime();
-                currentTime = (endTime - startTime) / 1000;
+                currentTime = (endTime - startTime) / 1000000;
 
                 if (lastFasterTime != 0){
-                    ratio = String.format("%5.4f", (double) currentTime/lastFasterTime);
+                    ratio = String.format("%5.2f", (double) currentTime/lastFasterTime);
                 }
 
 
-                System.out.printf("%20s%20s%20s%20s", i, currentTime, ratio, "8");
+                System.out.printf("%15s%15s%15s%15s", i, currentTime, ratio, n2log);
                 lastFasterTime = currentTime;
-            } else System.out.printf("%20s%20s%20s%20s", "na", "na", "na", "na");
+            } else System.out.printf("%15s%15s%15s%15s", "na", "na", "na", "na");
 
             // Fast (from textbook)
             if (lastFastestTime < maxTime) {
                 startTime = getCpuTime();
                 ArrayList<int[]> foundSums = ThreeSumFast(randomList, i);
                 endTime = getCpuTime();
-                currentTime = (endTime - startTime) / 1000;
+                currentTime = (endTime - startTime) / 1000000;
 
                 if (lastFastestTime != 0){
-                    ratio = String.format("%5.4f", (double) currentTime/lastFastestTime);
+                    ratio = String.format("%5.2f", (double) currentTime/lastFastestTime);
                 }
 
 
-                System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
+                System.out.printf("%15s%15s%15s%15s\n", i, currentTime, ratio, n2log);
                 lastFastestTime = currentTime;
-            } else System.out.printf("%20s%20s%20s%20s\n", "na", "na", "na", "na");
+            } else System.out.printf("%15s%15s%15s%15s\n", "na", "na", "na", "na");
 
 
         }
@@ -198,15 +199,17 @@ public class Main {
         ArrayList sumList = new ArrayList();
 
         // Sort list first
-        int[] sortedList = MergeSort(list);
+        //int[] sortedList = MergeSort(list);
+        Arrays.sort(list);
+
 
         // Find parity center, starting a center
         int center = n/2;
-        if (sortedList[n/2] == 0) center = n/2;
-        else if (sortedList[n/2] > 0){
+        if (list[n/2] == 0) center = n/2;
+        else if (list[n/2] > 0){
             // roll back until negative is found, set center as the last positive.
             for (int p = n/2; p >=0; p--){
-                if (sortedList[p] < 0) {
+                if (list[p] < 0) {
                     center = p+1;
                     break;
                 }
@@ -215,7 +218,7 @@ public class Main {
         else{
             // roll forward until first positive is found
             for (int q = n/2; q < n; q++){
-                if (sortedList[q] > 0){
+                if (list[q] > 0){
                     center = q;
                     break;
                 }
@@ -230,20 +233,20 @@ public class Main {
             // iterate until it reaches i
             for (int j = n-1; j > i; j--){
                 // determine parity
-                if (sortedList[i] + sortedList[j] >=0){
+                if (list[i] + list[j] >=0){
                     // parity positive, iterate only though negative numbers
                     for (int neg = center-1; neg >= 0; neg--){
-                        if (i != neg && j != neg &&(sortedList[i]+sortedList[j]+sortedList[neg] == 0)){
-                            sumList.add(new int[] {sortedList[i], sortedList[j], list[neg] });
-                        } else if (sortedList[i] + sortedList[j] + sortedList[neg] < 0) neg = -1; // break if gone too far
+                        if (i != neg && j != neg &&(list[i]+list[j]+list[neg] == 0)){
+                            sumList.add(new int[] {list[i], list[j], list[neg] });
+                        } else if (list[i] + list[j] + list[neg] < 0) neg = -1; // break if gone too far
                     }
                 }
                 else {
                     // parity negative, iterate only through positive numbers
                     for (int pos = center; pos < n; pos++){
-                        if (i != pos && j != pos && (sortedList[i]+sortedList[j]+sortedList[pos] == 0)){
-                            sumList.add(new int[] {sortedList[i], sortedList[j], sortedList[pos] });
-                        } else if (sortedList[i] + sortedList[j] + sortedList[pos] > 0) pos = n; // break if gone too far
+                        if (i != pos && j != pos && (list[i]+list[j]+list[pos] == 0)){
+                            sumList.add(new int[] {list[i], list[j], list[pos] });
+                        } else if (list[i] + list[j] + list[pos] > 0) pos = n; // break if gone too far
                     }
                 }
             }
