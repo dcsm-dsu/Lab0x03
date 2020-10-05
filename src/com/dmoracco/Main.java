@@ -10,52 +10,44 @@ public class Main {
     public static void main(String[] args) {
 
         // Validate algorithms
-        //validate();
+        validate();
 
         // Testing
         long startTime = 0;
         long endTime = 0;
-        long lastTime = 0;
+        long lastBFTime = 0;
+        long lastFasterTime = 0;
+        long lastFastestTime = 0;
         long currentTime = 0;
         String ratio = "na";
 
         long maxTime = 10000000;
         int n = 1000000;
 
-        int[] sortlist = generateList(10);
-        for (int num :
-                sortlist) {
-            System.out.print(num + ", ");
-        }
-        System.out.println();
-        sortlist = MergeSort(sortlist);
-        for (int num :
-                sortlist) {
-            System.out.print(num + ", ");
-        }
 
-
-/*
         System.out.printf("\n\n%20s%20s%20s%20s\n", "N", "Time (m/s)", "Ratio", "Exp. Ratio");
 
         for (int i = 1; i < n; i=i*2){
-            if (lastTime >= maxTime) break;
             int[] randomList = generateList(i);
 
-            startTime = getCpuTime();
-            ArrayList<int[]> foundSums = ThreeSumBruteForce(randomList, i);
-            endTime = getCpuTime();
-            currentTime = (endTime-startTime)/1000;
 
-            if (lastTime != 0){
-                ratio = String.format("%5.4f", (double) currentTime/lastTime);
-            }
+            if (lastBFTime < maxTime) {
+                startTime = getCpuTime();
+                ArrayList<int[]> foundSums = ThreeSumBruteForce(randomList, i);
+                endTime = getCpuTime();
+                currentTime = (endTime - startTime) / 1000;
+
+                if (lastBFTime != 0){
+                    ratio = String.format("%5.4f", (double) currentTime/lastBFTime);
+                }
 
 
-            System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
-            lastTime = currentTime;
+                System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
+                lastBFTime = currentTime;
+            } else System.out.printf("%20s%20s%20s%20s", "na", "na", "na", "na");
+
+
         }
-*/
     }
 
     public static void validate() {
@@ -69,10 +61,28 @@ public class Main {
             printTriple(list);
         }
         System.out.println();
+        System.out.print("Testing known/small list for BruteForceBinary: ");
+        testFoundSums = ThreeSumFasterBinary(testListKnown, 10);
+        for (int[] list: testFoundSums
+        ) {
+            printTriple(list);
+        }
+        System.out.println();
 
-        System.out.println("Testing n = 5000 random list");
+        System.out.println("Testing n = 5000 random list BruteForce: ");
         int[] testRandomList = generateList(5000);
+
         ArrayList<int[]> foundSums = ThreeSumBruteForce(testRandomList, 5000);
+        System.out.println("Found: " + foundSums.size());
+        if (foundSums.size() > 0){
+            for (int[] list: foundSums){
+                printTriple(list);
+            }
+        }
+
+        System.out.println("Testing n = 5000 random list BruteForce: ");
+
+        foundSums = ThreeSumFasterBinary(testRandomList, 5000);
         System.out.println("Found: " + foundSums.size());
         if (foundSums.size() > 0){
             for (int[] list: foundSums){
@@ -133,9 +143,45 @@ public class Main {
         ArrayList sumList = new ArrayList();
 
         // Sort list first
+        int[] sortedList = MergeSort(list);
 
+        // Find parity center, starting a center
+        int center = n/2;
+        if (sortedList[n/2] == 0) center = n/2;
+        else if (sortedList[n/2] > 0){
+            // roll back until negative is found, set center as the last positive.
+            for (int p = n/2; p >=0; p--){
+                if (sortedList[p] < 0) center = p+1;
+            }
+        }
+        else{
+            // roll forward until first positive is found
+            for (int q = n/2; q < n; q++){
+                if (sortedList[q] > 0) center = q;
+            }
+        }
 
-
+        // Brute Force, but smarter (maybe). Only iterating through numbers that will bring it closer to zero.
+        for (int i = 0; i < n; i++){
+            for (int j = n-1; j > 0; j--){
+                if (i != j){
+                    if (sortedList[i] + sortedList[j] >=0){
+                        for (int neg = center-1; neg >= 0; neg--){
+                            if (i != neg && j != neg &&(sortedList[i]+sortedList[j]+sortedList[neg] == 0)){
+                                sumList.add(new int[] {sortedList[i], sortedList[j], list[neg] });
+                            }
+                        }
+                    }
+                    else {
+                        for (int pos = center; pos < n; pos++){
+                            if (i != pos && j != pos && (sortedList[i]+sortedList[j]+sortedList[pos] == 0)){
+                                sumList.add(new int[] {sortedList[i], sortedList[j], sortedList[pos] });
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return sumList;
     }
 
@@ -190,14 +236,4 @@ public class Main {
         return mergedList;
     }
 
-    static boolean needsSwapped(byte[] previousList, byte[] currentList) {
-        int i = -1;
-        // return immediately if out of order, otherwise increment through array
-        do {
-            i++;
-            if (previousList[i] > currentList[i]) return true;
-        } while (i < previousList.length && previousList[i] == currentList[i]);
-
-        return false;
-    }
 }
