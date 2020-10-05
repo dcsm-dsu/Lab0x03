@@ -98,6 +98,7 @@ public class Main {
         }
         System.out.println();
         System.out.print("Testing known/small list for ThreeSumFasterBinary: ");
+        testFoundSums.clear();
         testFoundSums = ThreeSumFasterBinary(testListKnown, 10);
         for (int[] list: testFoundSums
         ) {
@@ -105,6 +106,7 @@ public class Main {
         }
         System.out.println();
         System.out.print("Testing known/small list for ThreeSumFast: ");
+        testFoundSums.clear();
         testFoundSums = ThreeSumFast(testListKnown, 10);
         for (int[] list: testFoundSums
         ) {
@@ -124,7 +126,7 @@ public class Main {
         }
 
         System.out.println("Testing n = 5000 random list ThreeSumFasterBinary: ");
-
+        foundSums.clear();
         foundSums = ThreeSumFasterBinary(testRandomList, 5000);
         System.out.println("Found: " + foundSums.size());
         if (foundSums.size() > 0){
@@ -134,7 +136,7 @@ public class Main {
         }
 
         System.out.println("Testing n = 5000 random list ThreeSumFast: ");
-
+        foundSums.clear();
         foundSums = ThreeSumFast(testRandomList, 5000);
         System.out.println("Found: " + foundSums.size());
         if (foundSums.size() > 0){
@@ -262,7 +264,7 @@ public class Main {
                 // Search for only possible match using binary search
                 key = binarySearch(list, -(list[i]+list[j]));
                 if (key >= 0){
-                    sumList.add(new int[] {list[i] + list[j] + list[key]});
+                    sumList.add(new int[] {list[i], list[j], list[key]});
                 }
             }
         }
