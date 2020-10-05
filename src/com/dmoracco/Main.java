@@ -1,6 +1,7 @@
 package com.dmoracco;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static com.dmoracco.GetCpuTime.getCpuTime;
@@ -61,8 +62,24 @@ public class Main {
                 }
 
 
-                System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
+                System.out.printf("%20s%20s%20s%20s", i, currentTime, ratio, "8");
                 lastFasterTime = currentTime;
+            } else System.out.printf("%20s%20s%20s%20s", "na", "na", "na", "na");
+
+            // Fast (from textbook)
+            if (lastFastestTime < maxTime) {
+                startTime = getCpuTime();
+                ArrayList<int[]> foundSums = ThreeSumFast(randomList, i);
+                endTime = getCpuTime();
+                currentTime = (endTime - startTime) / 1000;
+
+                if (lastFastestTime != 0){
+                    ratio = String.format("%5.4f", (double) currentTime/lastFastestTime);
+                }
+
+
+                System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
+                lastFastestTime = currentTime;
             } else System.out.printf("%20s%20s%20s%20s\n", "na", "na", "na", "na");
 
 
@@ -80,8 +97,15 @@ public class Main {
             printTriple(list);
         }
         System.out.println();
-        System.out.print("Testing known/small list for BruteForceBinary: ");
+        System.out.print("Testing known/small list for ThreeSumFasterBinary: ");
         testFoundSums = ThreeSumFasterBinary(testListKnown, 10);
+        for (int[] list: testFoundSums
+        ) {
+            printTriple(list);
+        }
+        System.out.println();
+        System.out.print("Testing known/small list for ThreeSumFast: ");
+        testFoundSums = ThreeSumFast(testListKnown, 10);
         for (int[] list: testFoundSums
         ) {
             printTriple(list);
@@ -99,9 +123,19 @@ public class Main {
             }
         }
 
-        System.out.println("Testing n = 5000 random list BruteForceBinary: ");
+        System.out.println("Testing n = 5000 random list ThreeSumFasterBinary: ");
 
         foundSums = ThreeSumFasterBinary(testRandomList, 5000);
+        System.out.println("Found: " + foundSums.size());
+        if (foundSums.size() > 0){
+            for (int[] list: foundSums){
+                printTriple(list);
+            }
+        }
+
+        System.out.println("Testing n = 5000 random list ThreeSumFast: ");
+
+        foundSums = ThreeSumFast(testRandomList, 5000);
         System.out.println("Found: " + foundSums.size());
         if (foundSums.size() > 0){
             for (int[] list: foundSums){
@@ -216,6 +250,26 @@ public class Main {
         return sumList;
     }
 
+    static ArrayList ThreeSumFast(int[] list, int n){
+        ArrayList sumList = new ArrayList();
+
+        // From text book to reference other algorithms
+        Arrays.sort(list);
+        int cnt = 0;
+        int key = -1;
+        for (int i = 0; i < n; i++){
+            for (int j = i+1; j < n; j++){
+                // Search for only possible match using binary search
+                key = binarySearch(list, -(list[i]+list[j]));
+                if (key >= 0){
+                    sumList.add(new int[] {list[i] + list[j] + list[key]});
+                }
+            }
+        }
+
+        return sumList;
+    }
+
     static int[] MergeSort(int[] list){
 
         int size = list.length;
@@ -267,4 +321,20 @@ public class Main {
         return mergedList;
     }
 
+    public static int binarySearch(int[] list, int key){
+        int i = 0;
+        int j = list.length / 2;
+        int k = list.length - 1;
+
+        while (i <= k){
+            if (key == list[j]) return j;
+            else {
+                if (list[j] < key) i = j+1;
+                else k = j-1;
+                j = (i+k)/2;
+            }
+        }
+        return -1;
+
+    }
 }
