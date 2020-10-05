@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
 
         // Validate algorithms
-        //validate();
+        validate();
 
         // Testing
         long startTime = 0;
@@ -99,7 +99,7 @@ public class Main {
             }
         }
 
-        System.out.println("Testing n = 5000 random list BruteForce: ");
+        System.out.println("Testing n = 5000 random list BruteForceBinary: ");
 
         foundSums = ThreeSumFasterBinary(testRandomList, 5000);
         System.out.println("Found: " + foundSums.size());
@@ -170,20 +170,26 @@ public class Main {
         else if (sortedList[n/2] > 0){
             // roll back until negative is found, set center as the last positive.
             for (int p = n/2; p >=0; p--){
-                if (sortedList[p] < 0) center = p+1;
+                if (sortedList[p] < 0) {
+                    center = p+1;
+                    break;
+                }
             }
         }
         else{
             // roll forward until first positive is found
             for (int q = n/2; q < n; q++){
-                if (sortedList[q] > 0) center = q;
+                if (sortedList[q] > 0){
+                    center = q;
+                    break;
+                }
             }
         }
 
         // Brute Force, but smarter (maybe). Only iterating through numbers that will bring it closer to zero.
 
-        // iterate over all numbers
-        for (int i = 0; i < n; i++){
+        // iterate to middle
+        for (int i = 0; i < n/2; i++){
             // iterate in reverse, thus "centering" the number with the largest and smallest
             // iterate until it reaches i
             for (int j = n-1; j > i; j--){
@@ -193,7 +199,7 @@ public class Main {
                     for (int neg = center-1; neg >= 0; neg--){
                         if (i != neg && j != neg &&(sortedList[i]+sortedList[j]+sortedList[neg] == 0)){
                             sumList.add(new int[] {sortedList[i], sortedList[j], list[neg] });
-                        } else if (sortedList[i] + sortedList[j] + sortedList[neg] < 0) break; // break if gone too far
+                        } else if (sortedList[i] + sortedList[j] + sortedList[neg] < 0) neg = -1; // break if gone too far
                     }
                 }
                 else {
@@ -201,7 +207,7 @@ public class Main {
                     for (int pos = center; pos < n; pos++){
                         if (i != pos && j != pos && (sortedList[i]+sortedList[j]+sortedList[pos] == 0)){
                             sumList.add(new int[] {sortedList[i], sortedList[j], sortedList[pos] });
-                        } else if (sortedList[i] + sortedList[j] + sortedList[pos] > 0) break; // break if gone too far
+                        } else if (sortedList[i] + sortedList[j] + sortedList[pos] > 0) pos = n; // break if gone too far
                     }
                 }
             }
