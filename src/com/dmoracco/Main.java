@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
 
         // Validate algorithms
-        validate();
+        //validate();
 
         // Testing
         long startTime = 0;
@@ -28,9 +28,12 @@ public class Main {
         System.out.printf("\n\n%20s%20s%20s%20s\n", "N", "Time (m/s)", "Ratio", "Exp. Ratio");
 
         for (int i = 1; i < n; i=i*2){
+            if (lastBFTime >= maxTime && lastFasterTime >= maxTime) break;
+
             int[] randomList = generateList(i);
 
 
+            // Brute Force
             if (lastBFTime < maxTime) {
                 startTime = getCpuTime();
                 ArrayList<int[]> foundSums = ThreeSumBruteForce(randomList, i);
@@ -42,9 +45,25 @@ public class Main {
                 }
 
 
-                System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
+                System.out.printf("%20s%20s%20s%20s", i, currentTime, ratio, "8");
                 lastBFTime = currentTime;
             } else System.out.printf("%20s%20s%20s%20s", "na", "na", "na", "na");
+
+            // Faster
+            if (lastFasterTime < maxTime) {
+                startTime = getCpuTime();
+                ArrayList<int[]> foundSums = ThreeSumFasterBinary(randomList, i);
+                endTime = getCpuTime();
+                currentTime = (endTime - startTime) / 1000;
+
+                if (lastFasterTime != 0){
+                    ratio = String.format("%5.4f", (double) currentTime/lastFasterTime);
+                }
+
+
+                System.out.printf("%20s%20s%20s%20s\n", i, currentTime, ratio, "8");
+                lastFasterTime = currentTime;
+            } else System.out.printf("%20s%20s%20s%20s\n", "na", "na", "na", "na");
 
 
         }
@@ -162,26 +181,32 @@ public class Main {
         }
 
         // Brute Force, but smarter (maybe). Only iterating through numbers that will bring it closer to zero.
+
+        // iterate over all numbers
         for (int i = 0; i < n; i++){
-            for (int j = n-1; j > 0; j--){
-                if (i != j){
-                    if (sortedList[i] + sortedList[j] >=0){
-                        for (int neg = center-1; neg >= 0; neg--){
-                            if (i != neg && j != neg &&(sortedList[i]+sortedList[j]+sortedList[neg] == 0)){
-                                sumList.add(new int[] {sortedList[i], sortedList[j], list[neg] });
-                            }
-                        }
+            // iterate in reverse, thus "centering" the number with the largest and smallest
+            // iterate until it reaches i
+            for (int j = n-1; j > i; j--){
+                // determine parity
+                if (sortedList[i] + sortedList[j] >=0){
+                    // parity positive, iterate only though negative numbers
+                    for (int neg = center-1; neg >= 0; neg--){
+                        if (i != neg && j != neg &&(sortedList[i]+sortedList[j]+sortedList[neg] == 0)){
+                            sumList.add(new int[] {sortedList[i], sortedList[j], list[neg] });
+                        } else if (sortedList[i] + sortedList[j] + sortedList[neg] < 0) break; // break if gone too far
                     }
-                    else {
-                        for (int pos = center; pos < n; pos++){
-                            if (i != pos && j != pos && (sortedList[i]+sortedList[j]+sortedList[pos] == 0)){
-                                sumList.add(new int[] {sortedList[i], sortedList[j], sortedList[pos] });
-                            }
-                        }
+                }
+                else {
+                    // parity negative, iterate only through positive numbers
+                    for (int pos = center; pos < n; pos++){
+                        if (i != pos && j != pos && (sortedList[i]+sortedList[j]+sortedList[pos] == 0)){
+                            sumList.add(new int[] {sortedList[i], sortedList[j], sortedList[pos] });
+                        } else if (sortedList[i] + sortedList[j] + sortedList[pos] > 0) break; // break if gone too far
                     }
                 }
             }
         }
+
         return sumList;
     }
 
